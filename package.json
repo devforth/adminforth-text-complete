@@ -1,6 +1,6 @@
 {
   "name": "@adminforth/text-complete",
-  "version": "1.0.21",
+  "version": "1.0.21", 
   "description": "Text completion plugin for adminforth",
   "type": "module",
   "main": "dist/index.js",
