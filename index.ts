@@ -121,7 +121,20 @@ export default class TextCompletePlugin extends AdminForthPlugin {
         } else {
 
           if (this.options.initialPrompt) {
-            content = `${this.options.initialPrompt}\n` +
+            // initial prompt might have mustache syntax for current record value (several fields)
+            // use regex to replace it with current record value
+            const regex = /{{([^}]+)}}/g;
+            const interpretedPrompt = this.options.initialPrompt.replace(regex, (match, p1) => {
+              const fieldName = p1.trim();
+              const fieldValue = record[fieldName];
+              if (fieldValue) {
+                return fieldValue;
+              }
+              return match;
+            });
+
+
+            content = `${interpretedPrompt}\n` +
               "No quotes. Don't talk to me. Just write text\n";
           } else {
             content = `Fill text/string field "${this.options.fieldName}" in the table "${resLabel}"\n` +
