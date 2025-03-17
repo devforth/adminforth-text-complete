@@ -6,6 +6,16 @@ export interface PluginOptions {
    */
   fieldName: string;
 
+  
+  /**
+   * Initial prompt request when field is empty. Mustache syntax for record context fields is supported.
+   * E.g.
+   * 'I need to introduce "{{ name }}" technology to my software development company website, I need short but very attractive description if it.'
+   * 
+   * Where `name` is a field name which contains technology name e.g. Vue.js
+   */
+  initialPrompt?: string;
+
   /**
    * Expert settings
    */
@@ -20,6 +30,7 @@ export interface PluginOptions {
      * Debounce time in ms. Default is 300. Time after user stopped typing before request will be sent.
      */
     debounceTime?: number;
+
 
     /**
      * When completion is made, this plugin passes non-empty fields of the record to the LLM model for record context understanding.

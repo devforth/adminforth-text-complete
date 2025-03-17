@@ -119,9 +119,15 @@ export default class TextCompletePlugin extends AdminForthPlugin {
               "Don't talk to me. Just write text. No quotes. Don't repeat current field value, just write completion\n";
 
         } else {
-          content = `Fill text/string field "${this.options.fieldName}" in the table "${resLabel}"\n` +
-              (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
-              "Be short, clear and precise. No quotes. Don't talk to me. Just write text\n";
+
+          if (this.options.initialPrompt) {
+            content = `${this.options.initialPrompt}\n` +
+              "No quotes. Don't talk to me. Just write text\n";
+          } else {
+            content = `Fill text/string field "${this.options.fieldName}" in the table "${resLabel}"\n` +
+                (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
+                "Be short, clear and precise. No quotes. Don't talk to me. Just write text\n";
+          }
         }
 
         process.env.HEAVY_DEBUG && console.log('🪲 OpenAI Prompt 🧠', content);
