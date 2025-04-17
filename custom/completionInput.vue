@@ -20,7 +20,7 @@
             <IconMagic class="w-4 h-4"/>
         </button>
         <template #tooltip>
-          Start completion
+          {{ $t('Start completion') }}
         </template>
       </Tooltip>  
 
@@ -35,7 +35,7 @@
             <span class="scale-75 border border-white rounded-sm px-0.5 bg-white/25">TAB</span>
         </button>
         <template #tooltip>
-          Approve completion
+          {{ $t('Approve completion') }}
         </template>
       </Tooltip>
      
