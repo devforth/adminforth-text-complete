@@ -11,7 +11,7 @@
       :debounceTime="meta.debounceTime"
     />
     <div class="absolute right-2 bottom-1">
-      <Tooltip v-if="isUntouched">
+      <Tooltip v-if="isUntouched || (!currentValue.trim() && !isFocused)">
         <button
           @click.stop="handleFocus"
           @mousedown.prevent
@@ -25,7 +25,7 @@
       </Tooltip>  
 
       <Spinner v-else-if="isLoading" class="w-6 h-6" lightFill="#000000" darkFill="#ffffff" />
-      <Tooltip v-else>
+      <Tooltip v-else-if="isFocused">
         <button
           @click.stop="approveCompletion"
           @mousedown.prevent
@@ -64,11 +64,19 @@ const emit = defineEmits([
 
 const isLoading = ref<boolean>(false);
 const isUntouched = ref<boolean>(true);
+const isFocused = ref<boolean>(false);
 const currentValue: Ref<string> = ref('');
 const suggestionInputRef = ref<InstanceType<typeof SuggestionInput> | null>(null);
 
 onMounted(() => {
   currentValue.value = props.record[props.column.name] || '';
+  if (suggestionInputRef.value) {
+    const editor = suggestionInputRef.value.$el.querySelector('.ql-editor');
+    if (editor) {
+      editor.addEventListener('focus', handleFocus);
+      editor.addEventListener('blur', handleBlur);
+    }
+  }
 });
 
 watch(() => currentValue.value, (value) => {
@@ -103,12 +111,17 @@ const approveCompletion = async () => {
 }
 
 function handleFocus() {
+  isFocused.value = true;
   if (suggestionInputRef.value) {
     const editor = suggestionInputRef.value.$el.querySelector('.ql-editor');
     if (editor) {
       editor.focus();
     }
   }
+}
+
+function handleBlur() {
+  isFocused.value = false;
 }
 
 </script>
