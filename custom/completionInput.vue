@@ -105,7 +105,6 @@ async function complete(textBeforeCursor: string) {
 
 const approveCompletion = async () => {
   if (suggestionInputRef.value) {
-    console.log('✋ approveCompletion', suggestionInputRef.value);
     await suggestionInputRef.value.approveCompletion('all');
   }
 }
