@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@iconify-prerendered/vue-mdi": "^0.28.1737398331",
-    "vue-suggestion-input": "^1.0.10"
+    "vue-suggestion-input": "^1.0.11"
   }
 }
