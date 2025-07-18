@@ -108,21 +108,19 @@ export default class TextCompletePlugin extends AdminForthPlugin {
           currentVal = currentVal.slice(-promptLimit);
         }
 
-        const resLabel = this.resourceConfig.label;
-       
+        // const resLabel = this.resourceConfig.label;
+        const fieldLabel = this.resourceConfig?.columns.find(c => c.name === this.options.fieldName)?.label || this.options.fieldName;
+        const resourceLabel = this.resourceConfig?.label || this.resourceConfig?.resourceId;
+
         let content;
-        
+
         if (currentVal) {
-          content = `Continue writing for text/string field "${this.options.fieldName}" in the table "${resLabel}"\n` +
+          content = `Continue writing for text/string field "${fieldLabel}" in the table "${resourceLabel}"\n` +
               (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
               `Current field value: ${currentVal}\n` +
               "Don't talk to me. Just write text. No quotes. Don't repeat current field value, just write completion\n";
-
         } else {
-
           if (this.options.initialPrompt) {
-            // initial prompt might have mustache syntax for current record value (several fields)
-            // use regex to replace it with current record value
             const regex = /{{([^}]+)}}/g;
             const interpretedPrompt = this.options.initialPrompt.replace(regex, (match, p1) => {
               const fieldName = p1.trim();
@@ -133,11 +131,10 @@ export default class TextCompletePlugin extends AdminForthPlugin {
               return match;
             });
 
-
             content = `${interpretedPrompt}\n` +
               "No quotes. Don't talk to me. Just write text\n";
           } else {
-            content = `Fill text/string field "${this.options.fieldName}" in the table "${resLabel}"\n` +
+            content = `Fill text/string field "${fieldLabel}" in the table "${resourceLabel}"\n` +
                 (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
                 "Be short, clear and precise. No quotes. Don't talk to me. Just write text\n";
           }
