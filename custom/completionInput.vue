@@ -33,11 +33,11 @@
           :class="[
             'text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800',
             'font-medium rounded-lg text-xs flex items-center justify-center py-1 px-1  ',
-            buttonText === 'TAB' ? 'w-16' : 'w-18'
+            buttonText === approveCompletionValue ? 'w-16' : 'w-18'
           ]">
             <div
             class="flex items-center justify-center"
-            v-if="buttonText === 'TAB'"
+            v-if="buttonText === approveCompletionValue"
             >
               <IconArrowRightThin class="mt-0.5 w-5 h-5 text-white"/>
               <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
@@ -46,7 +46,7 @@
             </div>
             <div
             class="flex items-center justify-center"
-            v-else-if="buttonText === 'CTRL + ->'"
+            v-else-if="buttonText === approveNextWorldValue"
             >
               <IconArrowRightThin class="mt-0.5 w-5 h-5 text-white" />
               <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
@@ -85,24 +85,24 @@ const props = defineProps<{
 const emit = defineEmits([
   'update:value',
 ]);
-
+const approveCompletionValue:string='TAB';
+const approveNextWorldValue:string='CTRL + ->'
 const isLoading = ref<boolean>(false);
 const isUntouched = ref<boolean>(true);
 const isFocused = ref<boolean>(false);
 const currentValue: Ref<string> = ref('');
 const suggestionInputRef = ref<InstanceType<typeof SuggestionInput> | null>(null);
-const buttonText = ref<string>('TAB');
+const buttonText = ref<string>(approveCompletionValue);
 
 const tooltipText = computed(() => 
-  buttonText.value === 'TAB' ? 'Approve completion' : 'Approve next word'
+  buttonText.value === approveCompletionValue ? 'Approve completion' : 'Approve next word'
 );
 
 function handleCompletionApproved(type: 'all' | 'word') {
-  console.log('🔥 Completion approved with type:', type);
-  if(buttonText.value === 'TAB' && type === 'all') {
-    buttonText.value = 'CTRL + ->';
-  } else if (buttonText.value === 'CTRL + ->' && type === 'word') {
-    buttonText.value = 'TAB';
+  if(buttonText.value === approveCompletionValue && type === 'all') {
+    buttonText.value = approveNextWorldValue;
+  } else if (buttonText.value === approveNextWorldValue && type === 'word') {
+    buttonText.value = approveCompletionValue;
   }
 }
 
@@ -151,13 +151,13 @@ async function complete(textBeforeCursor: string) {
 
 const approveCompletion = async () => {
   if (suggestionInputRef.value) {
-    if( buttonText.value === 'TAB') {
+    if( buttonText.value === approveCompletionValue) {
       await suggestionInputRef.value.approveCompletion('all');
     } else {
       await suggestionInputRef.value.approveCompletion('word');
     }
   }
-  buttonText.value === 'TAB' ? buttonText.value = 'CTRL + ->' : buttonText.value = 'TAB';
+  buttonText.value === approveCompletionValue ? buttonText.value = approveNextWorldValue : buttonText.value = approveCompletionValue;
 }
 
 function handleFocus() {
