@@ -46,7 +46,7 @@
             </div>
             <div
             class="flex items-center justify-center"
-            v-else-if="buttonText === approveNextWorldValue"
+            v-else-if="buttonText === approveNextWordValue"
             >
               <IconArrowRightThin class="mt-0.5 w-5 h-5 text-white" />
               <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
@@ -86,7 +86,7 @@ const emit = defineEmits([
   'update:value',
 ]);
 const approveCompletionValue:string='TAB';
-const approveNextWorldValue:string='CTRL + ->'
+const approveNextWordValue:string='CTRL + ->'
 const isLoading = ref<boolean>(false);
 const isUntouched = ref<boolean>(true);
 const isFocused = ref<boolean>(false);
@@ -100,8 +100,8 @@ const tooltipText = computed(() =>
 
 function handleCompletionApproved(type: 'all' | 'word') {
   if(buttonText.value === approveCompletionValue && type === 'all') {
-    buttonText.value = approveNextWorldValue;
-  } else if (buttonText.value === approveNextWorldValue && type === 'word') {
+    buttonText.value = approveNextWordValue;
+  } else if (buttonText.value === approveNextWordValue && type === 'word') {
     buttonText.value = approveCompletionValue;
   }
 }
@@ -157,7 +157,7 @@ const approveCompletion = async () => {
       await suggestionInputRef.value.approveCompletion('word');
     }
   }
-  buttonText.value === approveCompletionValue ? buttonText.value = approveNextWorldValue : buttonText.value = approveCompletionValue;
+  buttonText.value === approveCompletionValue ? buttonText.value = approveNextWordValue : buttonText.value = approveCompletionValue;
 }
 
 function handleFocus() {
