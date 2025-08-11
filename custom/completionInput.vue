@@ -4,11 +4,12 @@
       dark:focus:ring-blue-500 dark:focus:border-blue-500 relative max-w-full">
     <SuggestionInput 
       ref="suggestionInputRef"
-      class="w-full !border-none text-gray-900 text-sm dark:placeholder-gray-400 dark:text-white whitespace-normal mr-14"
+      class="w-full !border-none text-gray-900 text-sm dark:placeholder-gray-400 dark:text-white whitespace-normal mr-28"
       v-model="currentValue"
       :type="column.type"
       :completionRequest="complete"
       :debounceTime="meta.debounceTime"
+      @completion-approved="handleCompletionApproved"
     />
     <div class="absolute right-2 bottom-1">
       <Tooltip v-if="isUntouched || (!currentValue.trim() && !isFocused)">
@@ -29,13 +30,36 @@
         <button
           @click.stop="approveCompletion"
           @mousedown.prevent
-          class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800
-            font-medium rounded-lg text-xs w-14 h-6 flex items-center justify-center">
-            <IconArrowRightThin class="w-5 h-5"/>
-            <span class="scale-75 border border-white rounded-sm px-0.5 bg-white/25">TAB</span>
+          :class="[
+            'text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800',
+            'font-medium rounded-lg text-xs flex items-center justify-center py-1 px-1  ',
+            buttonText === approveCompletionValue ? 'w-16' : 'w-18'
+          ]">
+            <div
+            class="flex items-center justify-center"
+            v-if="buttonText === approveCompletionValue"
+            >
+              <IconArrowRightThin class="mt-0.5 w-5 h-5 text-white"/>
+              <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
+                <p class="mt-0.5">Tab</p>
+              </span>
+            </div>
+            <div
+            class="flex items-center justify-center"
+            v-else-if="buttonText === approveNextWordValue"
+            >
+              <IconArrowRightThin class="mt-0.5 w-5 h-5 text-white" />
+              <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
+                <p class="mt-0.5">Ctrl</p>
+              </span> 
+              <span class="ml-1 text-white">+</span>
+              <span class="ml-1 px-1 h-4 flex items-center justify-center rounded border bg-white text-black text-[10px] font-mono shadow-inner shadow-sm border-gray-300 dark:bg-gray-700 dark:text-white dark:border-gray-500">
+                  <IconArrowRightThin class="w-3.5 h-3.5" />
+              </span>
+            </div>
         </button>
         <template #tooltip>
-          {{ $t('Approve completion') }}
+          {{ $t(tooltipText) }}
         </template>
       </Tooltip>
      
@@ -44,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref  } from 'vue';
+import { ref, onMounted, watch, Ref, computed } from 'vue';
 import { callAdminForthApi } from '@/utils';
 import { AdminForthColumnCommon } from '@/types/Common';
 import { Spinner, Tooltip } from '@/afcl';
@@ -61,15 +85,33 @@ const props = defineProps<{
 const emit = defineEmits([
   'update:value',
 ]);
-
+const approveCompletionValue:string='TAB';
+const approveNextWordValue:string='CTRL + ->'
 const isLoading = ref<boolean>(false);
 const isUntouched = ref<boolean>(true);
 const isFocused = ref<boolean>(false);
 const currentValue: Ref<string> = ref('');
 const suggestionInputRef = ref<InstanceType<typeof SuggestionInput> | null>(null);
+const buttonText = ref<string>(approveCompletionValue);
+
+const tooltipText = computed(() => 
+  buttonText.value === approveCompletionValue ? 'Approve completion' : 'Approve next word'
+);
+
+function handleCompletionApproved(type: 'all' | 'word') {
+  if(buttonText.value === approveCompletionValue && type === 'all') {
+    buttonText.value = approveNextWordValue;
+  } else if (buttonText.value === approveNextWordValue && type === 'word') {
+    buttonText.value = approveCompletionValue;
+  }
+}
 
 onMounted(() => {
-  currentValue.value = props.record[props.column.name] || '';
+  const value = props.record[props.column.name] || '';
+  currentValue.value = value;
+  if (value.trim()) {
+    isUntouched.value = false;
+  }
   if (suggestionInputRef.value) {
     const editor = suggestionInputRef.value.$el.querySelector('.ql-editor');
     if (editor) {
@@ -84,7 +126,11 @@ watch(() => currentValue.value, (value) => {
 });
 
 watch(() => props.record, (value) => {
-  currentValue.value = value[props.column.name] || '';
+  const val = value[props.column.name] || '';
+  currentValue.value = val;
+  if (val.trim()) {
+    isUntouched.value = false;
+  }
 });
 
 async function complete(textBeforeCursor: string) {
@@ -105,8 +151,13 @@ async function complete(textBeforeCursor: string) {
 
 const approveCompletion = async () => {
   if (suggestionInputRef.value) {
-    await suggestionInputRef.value.approveCompletion('all');
+    if( buttonText.value === approveCompletionValue) {
+      await suggestionInputRef.value.approveCompletion('all');
+    } else {
+      await suggestionInputRef.value.approveCompletion('word');
+    }
   }
+  buttonText.value === approveCompletionValue ? buttonText.value = approveNextWordValue : buttonText.value = approveCompletionValue;
 }
 
 function handleFocus() {
