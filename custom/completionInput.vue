@@ -1,7 +1,9 @@
 <template>
   <div class="flex bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 
       focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 
-      dark:focus:ring-blue-500 dark:focus:border-blue-500 relative max-w-full">
+      dark:focus:ring-blue-500 dark:focus:border-blue-500 relative max-w-full"
+    :class="'bg-lightInputBackground placeholder-lightInputPlaceholderText text-lightInputText border-lightInputBorder dark:!bg-darkInputBackground dark:!placeholder-darkInputPlaceholderText dark:!text-darkInputText dark:!border-darkInputBorder'"
+  >
     <SuggestionInput 
       ref="suggestionInputRef"
       class="w-full !border-none text-gray-900 text-sm dark:placeholder-gray-400 dark:text-white whitespace-normal mr-28"
