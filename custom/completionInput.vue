@@ -76,7 +76,7 @@ import { AdminForthColumnCommon } from '@/types/Common';
 import { Spinner, Tooltip } from '@/afcl';
 import { IconMagic, IconCheck, IconArrowRightThin } from '@iconify-prerendered/vue-mdi';
 import SuggestionInput from 'vue-suggestion-input';
-import 'vue-suggestion-input/dist/style.css';
+import 'vue-suggestion-input/dist/vue-suggestion-input.css';
 
 const props = defineProps<{
   column: AdminForthColumnCommon,
