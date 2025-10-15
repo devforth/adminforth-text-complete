@@ -80,12 +80,13 @@ export default class TextCompletePlugin extends AdminForthPlugin {
       handler: async ({ body, headers }) => {
         if (this.options.rateLimit?.limit) {
           // rate limit
-          const { error } = RateLimiter.checkRateLimit(
-            this.pluginInstanceId, 
-            this.options.rateLimit?.limit,
-            this.adminforth.auth.getClientIp(headers),
-          );
-          if (error) {
+          // const { error } = RateLimiter.checkRateLimit(
+          //   this.pluginInstanceId, 
+          //   this.options.rateLimit?.limit,
+          //   this.adminforth.auth.getClientIp(headers),
+          // );
+          const rateLimiter = new RateLimiter(this.options.rateLimit?.limit);
+          if (!rateLimiter.consume(`${this.pluginInstanceId}-${this.adminforth.auth.getClientIp(headers)}`)) {
             return {
               completion: [],
             }
