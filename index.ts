@@ -12,9 +12,14 @@ export default class TextCompletePlugin extends AdminForthPlugin {
 
   adminforth!: IAdminForth;
 
+  rateLimiter?: RateLimiter;
+
   constructor(options: PluginOptions) {
     super(options, import.meta.url);
     this.options = options;
+    if (options.rateLimit?.limit) {
+      this.rateLimiter = new RateLimiter(options.rateLimit?.limit);
+    }
   }
 
   instanceUniqueRepresentation(pluginOptions: any) : string {
@@ -78,15 +83,14 @@ export default class TextCompletePlugin extends AdminForthPlugin {
       method: 'POST',
       path: `/plugin/${this.pluginInstanceId}/doComplete`,
       handler: async ({ body, headers }) => {
-        if (this.options.rateLimit?.limit) {
+        if (this.rateLimiter) {
           // rate limit
           // const { error } = RateLimiter.checkRateLimit(
           //   this.pluginInstanceId, 
           //   this.options.rateLimit?.limit,
           //   this.adminforth.auth.getClientIp(headers),
           // );
-          const rateLimiter = new RateLimiter(this.options.rateLimit?.limit);
-          if (!rateLimiter.consume(`${this.pluginInstanceId}-${this.adminforth.auth.getClientIp(headers)}`)) {
+          if (!await this.rateLimiter.consume(`${this.pluginInstanceId}-${this.adminforth.auth.getClientIp(headers)}`)) {
             return {
               completion: [],
             }
