@@ -8,7 +8,7 @@ export default class TextCompletePlugin extends AdminForthPlugin {
 
   resourceConfig!: AdminForthResource;
 
-  columnType!: AdminForthDataTypes;
+  columnType!: AdminForthDataTypes; 
 
   adminforth!: IAdminForth;
 
