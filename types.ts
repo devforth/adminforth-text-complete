@@ -63,10 +63,6 @@ export interface PluginOptions {
      */
     maxTokens?: number;
 
-    /**
-     * Stop tokens. Default is ['.']
-     */
-    stop?: string[];
   };
 
   /**

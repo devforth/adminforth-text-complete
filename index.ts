@@ -122,7 +122,7 @@ export default class TextCompletePlugin extends AdminForthPlugin {
           content = `Continue writing for text/string field "${fieldLabel}" in the table "${resLabel}"\n` +
               (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
               `Current field value: ${currentVal}\n` +
-              "Don't talk to me. Just write text. No quotes. Don't repeat current field value, just write completion\n";
+              "Don't talk to me. Just write text. No quotes. Don't repeat current field value, just write completion. Stop generating when you finish the sentence. DO NOT GENERATE AFTER GENERATED FIRST \".\"\n";
         } else {
           if (this.options.initialPrompt) {
             const regex = /{{([^}]+)}}/g;
@@ -140,18 +140,13 @@ export default class TextCompletePlugin extends AdminForthPlugin {
           } else {
             content = `Fill text/string field "${fieldLabel}" in the table "${resLabel}"\n` +
                 (Object.keys(recordNoField).length > 0 ? `Record has values for the context: ${inputContext}\n` : '') +
-                "Be short, clear and precise. No quotes. Don't talk to me. Just write text\n";
+                "Be short, clear and precise. No quotes. Don't talk to me. Just write text. Stop generating when you finish the sentence. DO NOT GENERATE AFTER YOU GENERATED FIRST\".\"\n";
           }
         }
 
         process.env.HEAVY_DEBUG && console.log('🪲 OpenAI Prompt 🧠', content);
-        const { content: respContent, finishReason } = await this.options.adapter.complete(content, this.options.expert?.stop, this.options.expert?.maxTokens);
-        const stop = this.options.expert?.stop || ['.'];
-        let suggestion = respContent + (
-          finishReason === 'stop' ? (
-            stop[0] === '.' && stop.length === 1 && this.columnType === AdminForthDataTypes.TEXT ? '. ' : ''
-          ) : ''
-        );
+        const { content: respContent } = await this.options.adapter.complete(content, [], this.options.expert?.maxTokens);
+        let suggestion = respContent
 
         if (suggestion.startsWith(currentVal)) {
           suggestion = suggestion.slice(currentVal.length);
