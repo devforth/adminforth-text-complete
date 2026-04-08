@@ -1,6 +1,7 @@
 import { CompletionAdapter } from "adminforth";
+import  {type PluginsCommonOptions } from "adminforth";
 
-export interface PluginOptions {
+export interface PluginOptions extends PluginsCommonOptions {
   /**
    * Field where plugin will auto-complete text. Should be string or text field.
    */

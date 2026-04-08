@@ -54,6 +54,6 @@
     ]
   },
   "peerDependencies": {
-    "adminforth": "^2.24.0"
+    "adminforth": "^2.30.0"
   }
 }
