@@ -70,13 +70,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from 'vue';
+import { ref, onMounted, watch, Ref, computed, defineAsyncComponent } from 'vue';
 import { callAdminForthApi } from '@/utils';
 import { AdminForthColumnCommon } from '@/types/Common';
 import { Spinner, Tooltip } from '@/afcl';
 import { IconMagic, IconCheck, IconArrowRightThin } from '@iconify-prerendered/vue-mdi';
-import SuggestionInput from 'vue-suggestion-input';
-import 'vue-suggestion-input/dist/style.css';
+
+
+const SuggestionInput = defineAsyncComponent(async () => {
+  const { default: SuggestionInput } = await import('vue-suggestion-input');
+  await import('vue-suggestion-input/dist/style.css');
+  return SuggestionInput;
+});
 
 const props = defineProps<{
   column: AdminForthColumnCommon,
