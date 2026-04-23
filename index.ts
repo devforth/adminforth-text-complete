@@ -145,7 +145,10 @@ export default class TextCompletePlugin extends AdminForthPlugin {
         }
 
         process.env.HEAVY_DEBUG && console.log('🪲 OpenAI Prompt 🧠', content);
-        const { content: respContent } = await this.options.adapter.complete(content, this.options.expert?.maxTokens);
+        const { content: respContent } = await this.options.adapter.complete({
+          content,
+          maxTokens: this.options.expert?.maxTokens ?? 50,
+        });
         let suggestion = respContent
 
         if (suggestion.startsWith(currentVal)) {
