@@ -187,4 +187,8 @@ function handleBlur() {
 .ql-editor::before {
   @apply text-gray-500 dark:text-gray-400 text-sm font-normal font-sans !important;
 }
+
+.ql-editor {
+  font-size: 0.875rem;
+}
 </style>
