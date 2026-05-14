@@ -149,13 +149,13 @@ export default class TextCompletePlugin extends AdminForthPlugin {
           content,
           maxTokens: this.options.expert?.maxTokens ?? 50,
         });
-        let suggestion = respContent
+        let suggestion = respContent || '';
 
-        if (suggestion.startsWith(currentVal)) {
+        if (currentVal && typeof currentVal === 'string' && suggestion.startsWith(currentVal)) {
           suggestion = suggestion.slice(currentVal.length);
         }
-        const wordsList = suggestion.split(' ').map((w, i) => {
-          return (i === suggestion.split(' ').length - 1) ? w : w + ' ';
+        const wordsList = suggestion.split(' ').map((w, i, arr) => {
+          return (i === arr.length - 1) ? w : w + ' ';
         });
 
         // remove quotes from start and end
