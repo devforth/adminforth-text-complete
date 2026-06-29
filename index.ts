@@ -98,6 +98,9 @@ export default class TextCompletePlugin extends AdminForthPlugin {
         }
 
         const { record } = body;
+        if (!record) {
+          return { completion: [] };
+        }
         const recordNoField = {...record};
         delete recordNoField[this.options.fieldName];
         let currentVal = record[this.options.fieldName];
