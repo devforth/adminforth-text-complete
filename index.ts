@@ -1,5 +1,5 @@
 
-import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter } from "adminforth";
+import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter, parseBody } from "adminforth";
 import { PluginOptions } from './types.js';
 import { z } from "zod";
 
@@ -83,28 +83,12 @@ export default class TextCompletePlugin extends AdminForthPlugin {
     return JSON.stringify(Object.fromEntries(fields));
   }
 
-  private parseBody<T>(
-    schema: z.ZodType<T>,
-    body: unknown,
-    response: { setStatus: (code: number, message: string) => void },
-  ): { ok: true; data: T } | { ok: false; error: { error: string; details: unknown } } {
-    const parsed = schema.safeParse(body ?? {});
-    if (!parsed.success) {
-      response.setStatus(400, '');
-      return {
-        ok: false,
-        error: { error: 'Request body validation failed', details: parsed.error.issues },
-      };
-    }
-    return { ok: true, data: parsed.data };
-  }
-
   setupEndpoints(server: IHttpServer) {
     server.endpoint({
       method: 'POST',
       path: `/plugin/${this.pluginInstanceId}/doComplete`,
       handler: async ({ body, headers, response }) => {
-        const parsed = this.parseBody(doCompleteBodySchema, body, response);
+        const parsed = parseBody(doCompleteBodySchema, body, response);
         if ('error' in parsed) return parsed.error;
         const data = parsed.data;
         if (this.rateLimiter) {
