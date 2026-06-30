@@ -1,6 +1,11 @@
 
-import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter } from "adminforth";
+import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter, parseBody } from "adminforth";
 import { PluginOptions } from './types.js';
+import { z } from "zod";
+
+const doCompleteBodySchema = z.object({
+  record: z.record(z.string(), z.any()),
+}).strict();
 
 
 export default class TextCompletePlugin extends AdminForthPlugin {
@@ -82,7 +87,10 @@ export default class TextCompletePlugin extends AdminForthPlugin {
     server.endpoint({
       method: 'POST',
       path: `/plugin/${this.pluginInstanceId}/doComplete`,
-      handler: async ({ body, headers }) => {
+      handler: async ({ body, headers, response }) => {
+        const parsed = parseBody(doCompleteBodySchema, body, response);
+        if ('error' in parsed) return parsed.error;
+        const data = parsed.data;
         if (this.rateLimiter) {
           // rate limit
           // const { error } = RateLimiter.checkRateLimit(
@@ -97,7 +105,7 @@ export default class TextCompletePlugin extends AdminForthPlugin {
           }
         }
 
-        const { record } = body;
+        const { record } = data;
         if (!record) {
           return { completion: [] };
         }
