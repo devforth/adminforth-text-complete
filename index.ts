@@ -4,7 +4,7 @@ import { PluginOptions } from './types.js';
 import { z } from "zod";
 
 const doCompleteBodySchema = z.object({
-  record: z.record(z.string(), z.any()).nullish(),
+  record: z.record(z.string(), z.any()),
 }).strict();
 
 
@@ -87,13 +87,16 @@ export default class TextCompletePlugin extends AdminForthPlugin {
     schema: z.ZodType<T>,
     body: unknown,
     response: { setStatus: (code: number, message: string) => void },
-  ): T | null {
+  ): { ok: true; data: T } | { ok: false; error: { error: string; details: unknown } } {
     const parsed = schema.safeParse(body ?? {});
     if (!parsed.success) {
-      response.setStatus(422, parsed.error.message);
-      return null;
+      response.setStatus(400, '');
+      return {
+        ok: false,
+        error: { error: 'Request body validation failed', details: parsed.error.issues },
+      };
     }
-    return parsed.data;
+    return { ok: true, data: parsed.data };
   }
 
   setupEndpoints(server: IHttpServer) {
@@ -101,8 +104,9 @@ export default class TextCompletePlugin extends AdminForthPlugin {
       method: 'POST',
       path: `/plugin/${this.pluginInstanceId}/doComplete`,
       handler: async ({ body, headers, response }) => {
-        const data = this.parseBody(doCompleteBodySchema, body, response);
-        if (!data) return;
+        const parsed = this.parseBody(doCompleteBodySchema, body, response);
+        if ('error' in parsed) return parsed.error;
+        const data = parsed.data;
         if (this.rateLimiter) {
           // rate limit
           // const { error } = RateLimiter.checkRateLimit(
