@@ -1,5 +1,5 @@
 
-import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter, parseBody } from "adminforth";
+import { IAdminForth, IHttpServer, AdminForthPlugin, AdminForthResource, AdminForthDataTypes, RateLimiter } from "adminforth";
 import { PluginOptions } from './types.js';
 import { z } from "zod";
 
@@ -87,10 +87,9 @@ export default class TextCompletePlugin extends AdminForthPlugin {
     server.endpoint({
       method: 'POST',
       path: `/plugin/${this.pluginInstanceId}/doComplete`,
-      handler: async ({ body, headers, response }) => {
-        const parsed = parseBody(doCompleteBodySchema, body, response);
-        if ('error' in parsed) return parsed.error;
-        const data = parsed.data;
+      request_schema: doCompleteBodySchema,
+      handler: async ({ body, headers }) => {
+        const data = body as z.infer<typeof doCompleteBodySchema>;
         if (this.rateLimiter) {
           // rate limit
           // const { error } = RateLimiter.checkRateLimit(
